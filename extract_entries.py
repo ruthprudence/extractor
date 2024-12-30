@@ -28,6 +28,7 @@ def main():
         max_time = None
     
     posts = extract_posts.extract(mbox_file, search_term, max_time)
+    posts.sort(key=lambda x: x[1])  # Sort by date
     output_text = output_utils.generate_text(posts, search_term)
     output_utils.export_text(output_text, f"{search_term}.txt")
     print(f"Total posts processed: {len(posts)}")
