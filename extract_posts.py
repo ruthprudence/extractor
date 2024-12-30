@@ -2,6 +2,7 @@ import time
 import mailbox
 import email
 import unicodedata
+from email.utils import parsedate_tz, mktime_tz
 
 def extract(mbox_file, search_term, max_time=None):
     posts = []
@@ -15,6 +16,14 @@ def extract(mbox_file, search_term, max_time=None):
         
         parsed_msg = email.message_from_string(msg.as_string())
         subject = parsed_msg['Subject']
+        date = parsed_msg['Date']
+        date_tuple = parsedate_tz(date)
+        if date_tuple:
+            date_epoch = mktime_tz(date_tuple)
+            date_str = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(date_epoch))
+        else:
+            date_str = 'Unknown'
+        
         body = ''
         if parsed_msg.is_multipart():
             for part in parsed_msg.walk():
@@ -25,12 +34,12 @@ def extract(mbox_file, search_term, max_time=None):
             body = parsed_msg.get_payload(decode=True).decode('utf-8', errors='ignore')
         body = unicodedata.normalize('NFKD', body)
         if search_term in body:
-            posts.append((subject, body))
+            posts.append((subject, date_str, body))
         
         # Display progress
         elapsed_time = time.time() - start_time
         percentage_completed = (i + 1) / total_items * 100
         print(f"Processed {i+1}/{total_items} ({percentage_completed:.2f}%). Elapsed: {elapsed_time:.2f}s", end='\r', flush=True)
     
-    print()  # Newline for readability
+    print() 
     return posts

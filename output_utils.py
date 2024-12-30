@@ -1,7 +1,7 @@
 def generate_text(posts, search_term):
     text = f"Search Term: {search_term}\n\n"
-    for subject, body in posts:
-        text += f"{subject}\n\n"
+    for subject, date, body in posts:
+        date_str = date.split(' ')[0]  # Extract date (YYYY-MM-DD)
         text += f"{body}\n\n"
         text += "---\n\n"
     return text
